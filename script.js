@@ -36,6 +36,16 @@ const malla = [
                     { id: "zoologia", nombre: "Zoología", requisitos: [] },
                     { id: "genetica", nombre: "Genética", requisitos: [] }
                 ]
+            },
+            {
+                numero: 4,
+                ramos: [
+                    { id: "admin", nombre: "Administración y Emprendimiento Veterinario", requisitos: [] },
+                    { id: "microbiologia", nombre: "Microbiología General y Veterinaria", requisitos: ["bioquimica"] },
+                    { id: "fisiologia", nombre: "Fisiología Animal", requisitos: ["bioquimica"] },
+                    { id: "enferParasitarias", nombre: "Enfermedades Parasitarias", requisitos: ["microbiologia"] },
+                    { id: "nutricion", nombre: "Nutrición y Alimentación Animal", requisitos: [] }
+                ]
             }
         ]
     }
@@ -44,23 +54,16 @@ const malla = [
 const contenedor = document.getElementById('malla');
 
 malla.forEach(anio => {
-    const divAnio = document.createElement('div');
-    divAnio.className = 'anio';
-
-    const h2 = document.createElement('h2');
-    h2.textContent = `Año ${anio.anio}`;
-    divAnio.appendChild(h2);
+    const fila = document.createElement('div');
+    fila.className = 'fila-anio';
 
     anio.semestres.forEach(sem => {
-        const divSemestre = document.createElement('div');
-        divSemestre.className = 'semestre';
+        const columna = document.createElement('div');
+        columna.className = 'columna-semestre';
 
-        const h3 = document.createElement('h3');
-        h3.textContent = `Semestre ${sem.numero}`;
-        divSemestre.appendChild(h3);
-
-        const divRamos = document.createElement('div');
-        divRamos.className = 'ramos';
+        const titulo = document.createElement('h3');
+        titulo.textContent = `${sem.numero}° Semestre`;
+        columna.appendChild(titulo);
 
         sem.ramos.forEach(ramo => {
             const btn = document.createElement('button');
@@ -74,17 +77,16 @@ malla.forEach(anio => {
                 btn.dataset.requiere = ramo.requisitos.join(',');
             }
 
-            divRamos.appendChild(btn);
+            columna.appendChild(btn);
         });
 
-        divSemestre.appendChild(divRamos);
-        divAnio.appendChild(divSemestre);
+        fila.appendChild(columna);
     });
 
-    contenedor.appendChild(divAnio);
+    contenedor.appendChild(fila);
 });
 
-// Lógica de desbloqueo
+// ✅ Lógica de desbloqueo
 document.addEventListener('click', e => {
     if (!e.target.classList.contains('ramo')) return;
 
@@ -93,5 +95,17 @@ document.addEventListener('click', e => {
 
     btn.classList.toggle('aprobado');
 
-    document.querySelectorAll('.ramo').forE
+    document.querySelectorAll('.ramo').forEach(ramo => {
+        const requisitos = ramo.dataset.requiere?.split(',') || [];
+        if (requisitos.length > 0 && ramo.classList.contains('bloqueado')) {
+            const desbloquear = requisitos.every(id =>
+                document.getElementById(id)?.classList.contains('aprobado')
+            );
+            if (desbloquear) {
+                ramo.classList.remove('bloqueado');
+                ramo.disabled = false;
+            }
+        }
+    });
+});
 
